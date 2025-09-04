@@ -1,0 +1,137 @@
+// main CPP
+
+//https://github.com/NichUniversity/Membership-Anarchy-CPP/actions//Membership Anarchy CPP
+
+#include "GeneralMembership.h"
+#include "StudentMembership.h"
+#include "FacultyMembership.h"
+#include "MembershipManager.h"
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+// Display menu
+void display_command_menu()
+{
+    cout << "COMMAND MENU\n";
+    cout << "v - View all gym Members\n";
+    cout << "a - Add a gym member\n";
+    cout << "d - Delete a gym Member\n";
+    cout << "x - Exit program\n\n";
+}
+
+// Output operator
+std::ostream& operator<<(std::ostream& out, const GeneralMembership& p)
+{
+    p.display_membership(out);
+    return out;
+}
+
+// Input operator
+std::istream& operator>>(std::istream& in, GeneralMembership*& p)
+{
+    char type;
+    cout << "Enter Membership Type (G = General, S = Student, F = Faculty): ";
+    in >> type;
+    in.ignore(); // clear newline
+
+    string id, name;
+
+    cout << "Enter ID: ";
+    getline(in, id);
+
+    cout << "Enter Name: ";
+    getline(in, name);
+
+    if (type == 'S' || type == 's')
+    {
+        string sid, major;
+        cout << "Enter Student ID: ";
+        getline(in, sid);
+        cout << "Enter Major: ";
+        getline(in, major);
+
+        p = new StudentMembership(id, name, sid, major);
+    }
+    else if (type == 'F' || type == 'f')
+    {
+        string fid, title;
+        cout << "Enter Faculty ID: ";
+        getline(in, fid);
+        cout << "Enter Title: ";
+        getline(in, title);
+
+        p = new FacultyMembership(id, name, fid, title);
+    }
+    else
+    {
+        p = new GeneralMembership(id, name);
+    }
+
+    return in;
+}
+
+int main()
+{
+    cout << "Gym Member Manager\n\n";
+
+    MembershipManager manager("membership.txt");
+
+    display_command_menu();
+
+    char command;
+    while (true)
+    {
+        cout << "\nCommand: ";
+        cin >> command;
+        cin.ignore(); // clear newline
+
+        try
+        {
+            switch (command)
+            {
+            case 'v':
+            case 'V':
+                manager.show_all_memberships();
+                break;
+
+            case 'a':
+            case 'A':
+            {
+                GeneralMembership* newMember = nullptr;
+                cin >> newMember; // now asks for type and all fields
+                manager.add_member();
+                break;
+            }
+
+            case 'd':
+            case 'D':
+            {
+                int membership_num;
+                cout << "Enter membership number: ";
+                cin >> membership_num;
+                cin.ignore();
+                manager.delete_member(membership_num);
+                cout << "Membership " << membership_num << " deleted!\n";
+                break;
+            }
+
+            case 'x':
+            case 'X':
+                cout << "Bye!\n";
+                return 0;
+
+            default:
+                cout << "Not a valid command. Try again.\n";
+            }
+        }
+        catch (exception& e)
+        {
+            cout << "Error: " << e.what() << endl;
+        }
+    }
+
+    return 0;
+}
