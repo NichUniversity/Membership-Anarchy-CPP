@@ -1,0 +1,51 @@
+#include "StudentMembership.h"
+#include <iostream>
+#include <stdexcept>
+
+using std::string;
+using std::getline;
+using std::cout;
+using std::invalid_argument;
+
+// Constructor
+StudentMembership::StudentMembership(string id, string name, string sid, string major)
+    : GeneralMembership(id, name)
+{
+    this->sid = sid;
+    this->major = major;
+}
+
+// Setters
+void StudentMembership::set_name(string name)
+{
+    GeneralMembership::set_name(name);
+}
+
+void StudentMembership::set_major(string major)
+{
+    this->major = major;
+}
+
+// Display
+void StudentMembership::display_membership(std::ostream& out) const
+{
+    GeneralMembership::display_membership(out);
+    out << "\tSID: " << sid << "\tMajor: " << major;
+}
+
+// Edit (optional)
+void StudentMembership::edit_membership(std::istream& in)
+{
+    cout << "Enter Student Name: ";
+    getline(in, name);
+    cout << "Enter Student ID: ";
+    getline(in, sid);
+    cout << "Enter Major: ";
+    getline(in, major);
+}
+
+// Comparison
+bool StudentMembership::operator==(const StudentMembership& other)
+{
+    return GeneralMembership::operator==(other) || sid == other.sid;
+}
