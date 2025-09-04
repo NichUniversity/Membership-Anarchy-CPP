@@ -1,0 +1,142 @@
+#include "MembershipManager.h"
+#include "StudentMembership.h"
+#include "FacultyMembership.h"
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+
+using std::string;
+using std::cin;
+using std::cout;
+using std::endl;
+using std::ifstream;
+using std::ofstream;
+using std::stringstream;
+using std::invalid_argument;
+using std::exception;
+
+// Constructor
+MembershipManager::MembershipManager(string filename)
+{
+    this->filename = filename;
+    load_info_from_file();
+}
+
+// Destructor
+MembershipManager::~MembershipManager()
+{
+    for (auto p : list)
+        delete p;
+}
+
+// Load members from file
+void MembershipManager::load_info_from_file()
+{
+    ifstream infile(filename);
+    if (!infile) return;
+
+    string line;
+    while (getline(infile, line))
+    {
+        stringstream ss(line);
+        string id, name;
+        getline(ss, id, '\t');
+        getline(ss, name, '\t');
+
+        GeneralMembership* p = nullptr;
+        char type = id[0];
+
+        try
+        {
+            if (type == 'p' || type == 'P')
+                p = new GeneralMembership(id, name);
+            else if (type == 's' || type == 'S')
+            {
+                string sid, major;
+                getline(ss, sid, '\t');
+                getline(ss, major);
+                p = new StudentMembership(id, name, sid, major);
+            }
+            else if (type == 'f' || type == 'F')
+            {
+                string fid, title;
+                getline(ss, fid, '\t');
+                getline(ss, title);
+                p = new FacultyMembership(id, name, fid, title);
+            }
+
+            if (p) list.push_back(p);
+        }
+        catch (const exception& e)
+        {
+            cout << "Error loading member: " << e.what() << "\n";
+        }
+    }
+}
+
+// Save members to file
+void MembershipManager::write_list_to_file()
+{
+    ofstream outfile(filename);
+    for (auto p : list)
+    {
+        outfile << p->get_id() << '\t' << p->get_name() << '\t';
+        char type = p->get_id()[0];
+        if (type == 's' || type == 'S')
+        {
+            auto s = static_cast<StudentMembership*>(p);
+            outfile << s->get_sid() << '\t' << s->get_major() << '\n';
+        }
+        else if (type == 'f' || type == 'F')
+        {
+            auto f = static_cast<FacultyMembership*>(p);
+            outfile << f->get_fid() << '\t' << f->get_title() << '\n';
+        }
+        else
+            outfile << '\n';
+    }
+}
+
+// Show all members
+void MembershipManager::show_all_memberships() const
+{
+    cout << "\t#\tID\tName\tInfo\n";
+    for (size_t i = 0; i < list.size(); i++)
+        cout << i + 1 << "\t" << *list[i] << endl;
+}
+
+// Add member
+void MembershipManager::add_member()
+{
+    GeneralMembership* p = nullptr;
+    cin >> p;
+
+    for (auto existing : list)
+    {
+        if (*existing == *p)
+        {
+            cout << p->get_id() << " is already in the database!\n";
+            delete p;
+            return;
+        }
+    }
+
+    list.push_back(p);
+    write_list_to_file();
+}
+
+// Delete member
+void MembershipManager::delete_member(int membership_num)
+{
+    int idx = membership_num - 1;
+    if (idx >= 0 && idx < (int)list.size())
+    {
+        delete list[idx];
+        list.erase(list.begin() + idx);
+        write_list_to_file();
+    }
+    else
+        throw invalid_argument("Invalid membership number");
+}
