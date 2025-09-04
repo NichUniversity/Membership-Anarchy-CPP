@@ -1,0 +1,55 @@
+#include "FacultyMembership.h"
+#include <iostream>
+#include <stdexcept>
+
+using std::string;
+using std::getline;
+using std::cout;
+
+// Constructor
+FacultyMembership::FacultyMembership(string id, string name, string fid, string title)
+    : GeneralMembership(id, name)
+{
+    this->fid = fid;
+    this->title = title;
+}
+
+// Setters
+void FacultyMembership::set_name(string name)
+{
+    GeneralMembership::set_name(name);
+}
+
+void FacultyMembership::set_fid(string fid)
+{
+    this->fid = fid;
+}
+
+void FacultyMembership::set_title(string title)
+{
+    this->title = title;
+}
+
+// Display
+void FacultyMembership::display_membership(std::ostream& out) const
+{
+    GeneralMembership::display_membership(out);
+    out << "\tFID: " << fid << "\tTitle: " << title;
+}
+
+// Edit
+void FacultyMembership::edit_membership(std::istream& in)
+{
+    cout << "Enter Faculty Name: ";
+    getline(in, name);
+    cout << "Enter Faculty ID: ";
+    getline(in, fid);
+    cout << "Enter Title: ";
+    getline(in, title);
+}
+
+// Comparison
+bool FacultyMembership::operator==(const FacultyMembership& other)
+{
+    return GeneralMembership::operator==(other) || fid == other.fid;
+}
