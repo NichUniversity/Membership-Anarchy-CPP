@@ -1,0 +1,43 @@
+#include "GeneralMembership.h"
+#include <iostream>
+#include <stdexcept>
+
+using std::string;
+using std::getline;
+using std::cout;
+using std::invalid_argument;
+
+// Constructor
+GeneralMembership::GeneralMembership(string id, string name)
+{
+    this->id = id;
+    set_name(name);
+}
+
+// Setter with validation
+void GeneralMembership::set_name(string name)
+{
+    if (!name.empty())
+        this->name = name;
+    else
+        throw invalid_argument("Invalid name");
+}
+
+// Display
+void GeneralMembership::display_membership(std::ostream& out) const
+{
+    out << "ID: " << id << "\tName: " << name;
+}
+
+// Edit (optional)
+void GeneralMembership::edit_membership(std::istream& in)
+{
+    cout << "Enter Name: ";
+    getline(in, name);
+}
+
+// Comparison
+bool GeneralMembership::operator==(const GeneralMembership& other)
+{
+    return id == other.get_id();
+}
